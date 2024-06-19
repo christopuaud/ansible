@@ -1,0 +1,55 @@
+---
+ - name: Install Apache2
+   apt:
+     update_cache: yes
+     name: apache2
+     state: latest
+
+ - name: install php packge
+   apt:
+     pkg:
+       - php
+       - php8.2-mysql
+       - php8.2-gd
+       - php8.2-imagick
+       - libapache2-mod-php
+       - mariadb-client
+     state: latest
+
+ - name: check workpress directory existence
+   stat:
+     path: /var/www/wordpress
+   register: wordpressinstall
+
+ - name: download and untargz wordpress archive
+   unarchive:
+     src: https://fr.wordpress.org/latest-fr_FR.tar.gz
+     dest: /var/www/
+     remote_src: yes
+   when: not wordpressinstall.stat.exists
+
+ - name: change recursively ownership of wordpress directory to www-data
+   file:
+     path: /var/www/wordpress
+     state: directory
+     recurse: yes
+     owner: www-data
+     group: www-data
+
+
+ - name: disable default apach2 website
+   command: a2dissite 000-default
+
+ - name: copy vhost to /etc/apache2/site-enabled
+   copy:
+     src: roles/web/templates/wordpress.conf
+     dest: /etc/apache2/sites-enabled/wordpress.conf
+     owner: root
+     group: root
+     mode: '0644'
+
+
+ - name: Restart Apache2
+   systemd:
+     name: apache2.service
+     state: restarted

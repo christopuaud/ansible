@@ -1,0 +1,47 @@
+---
+- name: install Mariadb
+  apt:
+    update_cache: yes
+    name: mariadb-server
+    state: latest
+
+- name: Modify MAriaDb 50-server.cnf file
+  lineinfile:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: "^bind-address.*127.0.*$"
+    line: "bind-address = 0.0.0.0"
+  register: mariaconfig
+
+- name: Restart MariaDB if config file has been modified
+  systemd:
+    name: mariadb.service
+    state: restarted
+  when: mariaconfig.changed
+
+- name: Install python3-pymysql
+  apt:
+    update_cache: yes
+    name: python3-pymysql
+    state: absent
+
+- name: Install python3-mysqldb
+  apt:
+    update_cache: yes
+    name: python3-mysqldb
+    state: latest
+
+- name: create wordpress database if does not exist
+  community.mysql.mysql_db:
+    name:
+      - wordpress
+      - test
+    state: present
+
+- name: Create user wordpress
+  community.mysql.mysql_user:
+    name: 'wordpress'
+    password: 'epsiepsi'
+    host: 192.168.1.12
+    priv: 'wordpress.*:ALL'
+    state: present
+
