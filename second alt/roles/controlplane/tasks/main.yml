@@ -13,30 +13,29 @@
 
 - name: wait for node-token file creation
   wait_for:
-    path: var/lib/rancher/k3s/server/node-token
+    path: /var/lib/rancher/k3s/server/node-token
 
 - name: Get an store token permissions
   stat:
-    path: /var/lib/ranger/k3s/server
+    path: /var/lib/rancher/k3s/server
   register: permissions
 
-- name: chnage de permissions of token folder 
+- name: chnage de permissions of token folder
   file:
-    path: /var/lib/ranger/k3s/server
-    mode:"g+rx,o+rx"
+    path: /var/lib/rancher/k3s/server
+    mode: "g+rx,o+rx"
 
 - name: Store node-token from master
-    slurp:
-      src: /var/lib/rancher/k3s/server/node-token
-    register: worker_token
+  slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: worker_token
 
 - name: store master node-token
-  set fact:
-    token: "{{ worker_token.content| b64decode | regex_replace{'\n',''} }}"
-
+  set_fact:
+    token: "{{ worker_token.content| b64decode | regex_replace('\n','') }}"
 
 - name: Restore token folder permissions
   file:
-    path: /var/lib/ranger/k3s/server
-    mode:"{{ permissions.stat.node }}"
+    path: /var/lib/rancher/k3s/server
+    mode: "{{ permissions.stat.mode }}"
 
