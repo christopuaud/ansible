@@ -1,0 +1,5 @@
+---
+
+- name: Install k3s
+  shell:
+    cmd: curl -fsL https://get.k3s.io | K3S_URL=https://172.16.152.22:6443 K3S_TOKEN={{ hostvars[groups['controplane'][0]]['token'] }} sh -
