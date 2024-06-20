@@ -1,0 +1,12 @@
+---
+- hosts: controlplane
+  gather_facts: yes
+  become: yes
+  roles:
+   - role: controlplane
+
+- hosts: worker
+  gather_facts: yes
+  become: yes
+  roles:
+   - role: worker

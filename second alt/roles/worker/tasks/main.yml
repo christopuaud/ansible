@@ -1,0 +1,36 @@
+---
+
+ - name: check workpress directory existence
+   stat:
+     path: /var/lib/rancher/k3s
+   register: k3sinstalled
+
+ - name: Install k3s
+   shell:
+     cmd: curl -fsL https://get.k3s.io | sh -
+   when: not k3sinstalled.stat.exists
+
+
+ - name: wait for node-token file creation
+   wait_for:
+     path: var/lib/rancher/k3s/server/node-token
+
+ - name: Get an store token permissions
+   stat:
+     path: /var/lib/ranger/k3s/server
+   register: permissions
+
+ - name: chnage de permissions of token folder 
+   file:
+     path: /var/lib/ranger/k3s/server
+     mode:"g+rx,o+rx"
+
+ - name: Store node-token from master
+
+ - name: store master node-token
+
+ - name: Restore token folder permissions
+   file:
+     path: /var/lib/ranger/k3s/server
+     mode:"{{ permissions.stat.node }}"
+
